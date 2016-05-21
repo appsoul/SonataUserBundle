@@ -17,6 +17,8 @@ use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
+use Sonata\UserBundle\Form\Type\SecurityRolesType;
+use Sonata\UserBundle\Form\Type\UserGenderListType;
 
 class UserAdmin extends AbstractAdmin
 {
@@ -194,8 +196,8 @@ class UserAdmin extends AbstractAdmin
                     ->add('lastname', null, array('required' => false))
                     ->add('website', 'url', array('required' => false))
                     ->add('biography', 'text', array('required' => false))
-                    ->add('gender', 'sonata_user_gender', array(
-                        'required' => true,
+                    ->add('gender', UserGenderListType::class, array(
+                        'required'           => true,
                         'translation_domain' => $this->getTranslationDomain(),
                     ))
                     ->add('locale', 'locale', array('required' => false))
@@ -211,6 +213,40 @@ class UserAdmin extends AbstractAdmin
                     ->add('gplusName', null, array('required' => false))
                 ->end()
             ->end()
+<<<<<<< HEAD
+=======
+        ;
+
+        if ($this->getSubject() && !$this->getSubject()->hasRole('ROLE_SUPER_ADMIN')) {
+            $formMapper
+                ->tab('Security')
+                    ->with('Status')
+                        ->add('locked', null, array('required' => false))
+                        ->add('expired', null, array('required' => false))
+                        ->add('enabled', null, array('required' => false))
+                        ->add('credentialsExpired', null, array('required' => false))
+                    ->end()
+                    ->with('Groups')
+                        ->add('groups', 'sonata_type_model', array(
+                            'required' => false,
+                            'expanded' => true,
+                            'multiple' => true,
+                        ))
+                    ->end()
+                    ->with('Roles')
+                        ->add('realRoles', SecurityRolesType::class, array(
+                            'label'    => 'form.label_roles',
+                            'expanded' => true,
+                            'multiple' => true,
+                            'required' => false,
+                        ))
+                    ->end()
+                ->end()
+            ;
+        }
+
+        $formMapper
+>>>>>>> refs/remotes/origin/add_support_for_fos_user2
             ->tab('Security')
                 ->with('Status')
                     ->add('locked', null, array('required' => false))
