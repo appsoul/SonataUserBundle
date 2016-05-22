@@ -25,7 +25,7 @@
         "symfony/console": "~2.8|^3.0",
         "sonata-project/core-bundle": "^3.0",
         "sonata-project/admin-bundle": "^3.1",
-        "friendsofsymfony/user-bundle": "2.0.x-dev",
+        "friendsofsymfony/user-bundle": "~2.0@dev",
         "sonata-project/doctrine-extensions": "^1.0",
         "sonata-project/easy-extends-bundle": "^2.1",
         "sonata-project/google-authenticator": "^1.0",
@@ -52,6 +52,8 @@
     "autoload": {
         "psr-4": { "Sonata\\UserBundle\\": "" }
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "branch-alias": {
             "dev-master": "3.0.x-dev"
