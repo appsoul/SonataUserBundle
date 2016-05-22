@@ -25,7 +25,7 @@
         "symfony/console": "~2.8|^3.0",
         "sonata-project/core-bundle": "^3.0",
         "sonata-project/admin-bundle": "^3.1",
-        "friendsofsymfony/user-bundle": "dev-master@dev",
+        "friendsofsymfony/user-bundle": "2.0.x-dev",
         "sonata-project/doctrine-extensions": "^1.0",
         "sonata-project/easy-extends-bundle": "^2.1",
         "sonata-project/google-authenticator": "^1.0",
