@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Sonata package.
+ * This file is part of the Sonata Project package.
  *
  * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
@@ -52,7 +52,7 @@ class GroupController
     public function __construct(GroupManagerInterface $groupManager, FormFactoryInterface $formFactory)
     {
         $this->groupManager = $groupManager;
-        $this->formFactory  = $formFactory;
+        $this->formFactory = $formFactory;
     }
 
     /**
@@ -80,9 +80,9 @@ class GroupController
             'enabled' => '',
         );
 
-        $page     = $paramFetcher->get('page');
-        $limit    = $paramFetcher->get('count');
-        $sort     = $paramFetcher->get('orderBy');
+        $page = $paramFetcher->get('page');
+        $limit = $paramFetcher->get('count');
+        $sort = $paramFetcher->get('orderBy');
         $criteria = array_intersect_key($paramFetcher->all(), $supportedFilters);
 
         foreach ($criteria as $key => $value) {
@@ -177,41 +177,6 @@ class GroupController
     }
 
     /**
-     * Write a Group, this method is used by both POST and PUT action methods.
-     *
-     * @param Request  $request Symfony request
-     * @param int|null $id      A Group identifier
-     *
-     * @return FormInterface
-     */
-    protected function handleWriteGroup($request, $id = null)
-    {
-        $groupClassName = $this->groupManager->getClass();
-        $group = $id ? $this->getGroup($id) : new $groupClassName('');
-
-        $form = $this->formFactory->createNamed(null, 'sonata_user_api_form_group', $group, array(
-            'csrf_protection' => false,
-        ));
-
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            $group = $form->getData();
-            $this->groupManager->updateGroup($group);
-
-            $view = FOSRestView::create($group);
-            $serializationContext = SerializationContext::create();
-            $serializationContext->setGroups(array('sonata_api_read'));
-            $serializationContext->enableMaxDepthChecks();
-            $view->setSerializationContext($serializationContext);
-
-            return $view;
-        }
-
-        return $form;
-    }
-
-    /**
      * Deletes a group.
      *
      * @ApiDoc(
@@ -238,6 +203,41 @@ class GroupController
         $this->groupManager->deleteGroup($group);
 
         return array('deleted' => true);
+    }
+
+    /**
+     * Write a Group, this method is used by both POST and PUT action methods.
+     *
+     * @param Request  $request Symfony request
+     * @param int|null $id      A Group identifier
+     *
+     * @return FormInterface
+     */
+    protected function handleWriteGroup($request, $id = null)
+    {
+        $groupClassName = $this->groupManager->getClass();
+        $group = $id ? $this->getGroup($id) : new $groupClassName('');
+
+        $form = $this->formFactory->createNamed(null, 'sonata_user_api_form_group', $group, array(
+            'csrf_protection' => false,
+        ));
+
+        $form->submit($request);
+
+        if ($form->isValid()) {
+            $group = $form->getData();
+            $this->groupManager->updateGroup($group);
+
+            $view = FOSRestView::create($group);
+            $serializationContext = SerializationContext::create();
+            $serializationContext->setGroups(array('sonata_api_read'));
+            $serializationContext->enableMaxDepthChecks();
+            $view->setSerializationContext($serializationContext);
+
+            return $view;
+        }
+
+        return $form;
     }
 
     /**
