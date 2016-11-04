@@ -29,7 +29,7 @@ class AdminSecurityController extends SecurityController
      */
     public function loginAction(Request $request)
     {
-        $request = $request === null ? $request = $this->get('request') : $request;
+        $request = $request === null ? $request = $this->get('request_stack') : $request;
 
         $user = $this->getUser();
 
