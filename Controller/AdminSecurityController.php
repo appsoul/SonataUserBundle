@@ -84,7 +84,22 @@ class AdminSecurityController extends SecurityController
             return $this->redirect($refererUri && $refererUri != $request->getUri() ? $refererUri : $this->generateUrl('sonata_admin_dashboard'));
         }
 
-        return $response;
+        // TODO: Deprecated in 2.3, to be removed in 3.0
+        try {
+            $resetRoute = $this->generateUrl('sonata_user_admin_resetting_request');
+        } catch (RouteNotFoundException $e) {
+            @trigger_error('Using the route fos_user_resetting_request for admin password resetting is deprecated since version 2.3 and will be removed in 3.0. Use sonata_user_admin_resetting_request instead.', E_USER_DEPRECATED);
+            $resetRoute = $this->generateUrl('fos_user_resetting_request');
+        }
+
+        return $this->render('SonataUserBundle:Admin:Security/login.html.twig', array(
+            'last_username' => $lastUsername,
+            'error' => $error,
+            'csrf_token' => $csrfToken,
+            'base_template' => $this->get('sonata.admin.pool')->getTemplate('layout'),
+            'admin_pool' => $this->get('sonata.admin.pool'),
+            'reset_route' => $resetRoute, // TODO: Deprecated in 2.3, to be removed in 3.0
+        ));
     }
 
     public function checkAction()
