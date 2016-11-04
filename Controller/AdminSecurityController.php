@@ -15,6 +15,10 @@ use FOS\UserBundle\Controller\SecurityController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class AdminSecurityController extends SecurityController
 {
@@ -36,9 +40,45 @@ class AdminSecurityController extends SecurityController
             return $this->redirect($url);
         }
 
-        $response = parent::loginAction($request);
+        $session = $request->getSession();
 
-        if ($this->isGranted('ROLE_ADMIN')) {
+        // Symfony <2.6 BC. To be removed.
+        $authenticationErrorKey = class_exists('Symfony\Component\Security\Core\Security')
+            ? Security::AUTHENTICATION_ERROR : SecurityContextInterface::AUTHENTICATION_ERROR;
+
+        // get the error if any (works with forward and redirect -- see below)
+        if ($request->attributes->has($authenticationErrorKey)) {
+            $error = $request->attributes->get($authenticationErrorKey);
+        } elseif (null !== $session && $session->has($authenticationErrorKey)) {
+            $error = $session->get($authenticationErrorKey);
+            $session->remove($authenticationErrorKey);
+        } else {
+            $error = null;
+        }
+
+        if (!$error instanceof AuthenticationException) {
+            $error = null; // The value does not come from the security component.
+        }
+
+        $lastUsernameKey = class_exists('Symfony\Component\Security\Core\Security')
+            ? Security::LAST_USERNAME : SecurityContextInterface::LAST_USERNAME;
+
+        // last username entered by the user
+        $lastUsername = (null === $session) ? '' : $session->get($lastUsernameKey);
+
+        if ($this->has('security.csrf.token_manager')) { // sf >= 2.4
+            $csrfToken = $this->get('security.csrf.token_manager')->getToken('authenticate');
+        } else {
+            $csrfToken = $this->has('form.csrf_provider')
+                ? $this->get('form.csrf_provider')->generateCsrfToken('authenticate')
+                : null;
+        }
+
+        // NEXT_MAJOR: remove when dropping Symfony <2.8 support
+        $authorizationCheckerService = class_exists('Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')
+            ? $this->get('security.authorization_checker') : $this->get('security.context');
+
+        if ($authorizationCheckerService->isGranted('ROLE_ADMIN')) {
             $refererUri = $request->server->get('HTTP_REFERER');
 
             return $this->redirect($refererUri && $refererUri != $request->getUri() ? $refererUri : $this->generateUrl('sonata_admin_dashboard'));

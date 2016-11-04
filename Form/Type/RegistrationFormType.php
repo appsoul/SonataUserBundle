@@ -14,6 +14,7 @@ namespace Sonata\UserBundle\Form\Type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class RegistrationFormType extends AbstractType
 {
@@ -56,11 +57,24 @@ class RegistrationFormType extends AbstractType
                 'first_options' => array_merge(array(
                     'label' => 'form.password',
                 ), $this->mergeOptions),
-                'second_options'  => array_merge(array(
+                'second_options' => array_merge(array(
                     'label' => 'form.password_confirmation',
                 ), $this->mergeOptions),
                 'invalid_message' => 'fos_user.password.mismatch',
-            ), $this->mergeOptions));
+            ), $this->mergeOptions))
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * NEXT_MAJOR: remove this method.
+     *
+     * @deprecated Remove it when bumping requirements to Symfony 2.7+
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $this->configureOptions($resolver);
     }
 
     /**
@@ -80,5 +94,13 @@ class RegistrationFormType extends AbstractType
     public function getBlockPrefix()
     {
         return 'sonata_user_registration';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->getBlockPrefix();
     }
 }

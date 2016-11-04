@@ -14,7 +14,6 @@ namespace Sonata\UserBundle\Form\Type;
 use Sonata\UserBundle\Form\Transformer\RestoreRolesTransformer;
 use Sonata\UserBundle\Security\EditableRolesBuilder;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -22,6 +21,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class SecurityRolesType extends AbstractType
 {
@@ -82,6 +82,18 @@ class SecurityRolesType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * NEXT_MAJOR: remove this method.
+     *
+     * @deprecated Remove it when bumping requirements to Symfony 2.7+
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $this->configureOptions($resolver);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
@@ -89,7 +101,7 @@ class SecurityRolesType extends AbstractType
 
         $resolver->setDefaults(array(
             'choices' => function (Options $options, $parentChoices) use ($roles) {
-                return empty($parentChoices) ? array_flip($roles) : array();
+                return empty($parentChoices) ? $roles : array();
             },
 
             'read_only_choices' => function (Options $options) use ($rolesReadOnly) {
@@ -105,7 +117,10 @@ class SecurityRolesType extends AbstractType
      */
     public function getParent()
     {
-        return ChoiceType::class;
+        return
+            method_exists('Symfony\Component\Form\FormTypeInterface', 'setDefaultOptions') ?
+                'choice' : // support for symfony < 2.8.0
+                'Symfony\Component\Form\Extension\Core\Type\ChoiceType';
     }
 
     /**
@@ -114,5 +129,13 @@ class SecurityRolesType extends AbstractType
     public function getBlockPrefix()
     {
         return 'sonata_security_roles';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->getBlockPrefix();
     }
 }

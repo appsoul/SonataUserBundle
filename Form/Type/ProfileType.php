@@ -15,6 +15,7 @@ use Sonata\UserBundle\Model\UserInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class ProfileType extends AbstractType
 {
@@ -84,6 +85,18 @@ class ProfileType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * NEXT_MAJOR: remove this method.
+     *
+     * @deprecated Remove it when bumping requirements to Symfony 2.7+
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $this->configureOptions($resolver);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
@@ -98,5 +111,13 @@ class ProfileType extends AbstractType
     public function getBlockPrefix()
     {
         return 'sonata_user_profile';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->getBlockPrefix();
     }
 }
